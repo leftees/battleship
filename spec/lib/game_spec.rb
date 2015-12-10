@@ -81,6 +81,38 @@ describe Game do
       expect(game).to receive(:console)
       game.play
     end
+
+    describe "with console" do
+      it "when 'Q'" do
+        game.instance_variable_set("@command_line","Q")
+        expect{game.play}.to change{ game.state }.from('ready').to('terminated')
+      end
+
+      it "when 'D'" do
+        game.instance_variable_set("@command_line","D")
+        expect(game).to receive(:show).with( debug: true )
+        game.play
+      end
+
+      describe "when 'A5'" do
+        before(:each) { game.instance_variable_set("@command_line","A5") }
+
+        it "calls #shoot" do
+          expect(game).to receive(:shoot)
+          game.play
+        end
+
+        it "calls #report" do
+          expect(game).to receive(:report)
+          game.play
+        end
+
+        it "calls #show" do
+          expect(game).to receive(:show)
+          game.play
+        end
+      end
+    end
   end
 
   describe '#show' do
@@ -92,12 +124,12 @@ describe Game do
   describe "#fleet_location" do
     it "is valid" do
 
-      matrix = Array.new(4){ Array.new(4, false) }
+      matrix = Array.new(4){ Array.new(4, ' ') }
 
       ship1 = Ship.new(matrix, 1).build
       ship1.instance_variable_set("@location", [1,0]) 
 
-      ship2 = Ship.new(matrix, 2).build
+      ship2 = Ship.new(matrix, 1).build
       ship2.instance_variable_set("@location", [3,2]) 
 
       fleet = [ship1, ship2]

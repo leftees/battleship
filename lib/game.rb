@@ -12,7 +12,7 @@ class Game
   NO_SHOT_CHAR = '.'  
 
   SHIPS_DEFS = [
-    { size: 4 }, # Destroyer
+    { size: 4}, # Destroyer
     { size: 4 }, # Destroyer    
     { size: 5 }  # Battleship
   ]
@@ -24,6 +24,7 @@ class Game
     @command_line = nil
     @shots = []
     @fleet = []
+    @hits_counter = 0
     play
   end
 
@@ -57,7 +58,7 @@ class Game
         end
       end while not(gameover? || terminated? || initialized? || ENV['RACK_ENV'] == 'test')
     end while initialized?
-    report
+    report unless (ENV['RACK_ENV'] == 'test')
     self
   end
 
@@ -88,6 +89,7 @@ class Game
     SHIPS_DEFS.each do |ship_definition|
       ship = Ship.new(@matrix, ship_definition[:size]).build
       @fleet << ship
+      @hits_counter += ship_definition[:size] # need for game over check
       for coordinates in ship.location
         @matrix[coordinates[0]][coordinates[1]] = true
       end
@@ -95,34 +97,35 @@ class Game
   end
 
   def console
-    if ENV['RACK_ENV'] != 'test'
-      input = [(print "Enter coordinates (row, col), e.g. A5 (I - initialize, Q to quit): "), gets.rstrip][1]
-      self << input
-    end
+    return nil if ENV['RACK_ENV'] == 'test'
+    input = [(print "Enter coordinates (row, col), e.g. A5 (I - initialize, Q to quit): "), gets.rstrip][1]
+    self << input
   end
 
   def shoot
     if xy = convert
+      @shots.push(xy)
       @fleet.each do |ship|
         if ship.location.include? xy
           @matrix_oponent[xy[0]][xy[1]] = HIT_CHAR
+          @hits_counter -= 1
           @state = 'gameover' if game_over?
+          break
         else
           @matrix_oponent[xy[0]][xy[1]] = MISS_CHAR
         end
       end
-      @shots << xy
     end
   end
 
   def game_over?
-    (fleet_location - @shots).empty?
+    @hits_counter.zero?
   end
 
   def fleet_location
     fleet_location = []
     @fleet.each do |ship|
-      fleet_location << ship.location
+      fleet_location.push(ship.location)
     end
     fleet_location
   end

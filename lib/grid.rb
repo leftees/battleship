@@ -28,9 +28,8 @@ class Grid
   end
 
   def self.row(txt)
-    if ENV['RACK_ENV'] != 'test'
-      puts txt if txt
-    end
+    return nil if ENV['RACK_ENV'] == 'test'
+    puts txt if txt
   end
 
   private
@@ -47,10 +46,9 @@ class Grid
   end
 
   def print_header
-    if ENV['RACK_ENV'] != 'test'    
-      puts "=" * AXE_DIGGITS.size*3
-      puts status_line
-      puts "  #{AXE_DIGGITS.join(' ')}"
-    end
+    return nil if ENV['RACK_ENV'] == 'test'
+    puts "=" * AXE_DIGGITS.size*3
+    puts status_line
+    puts "  #{AXE_DIGGITS.join(' ')}"
   end
 end

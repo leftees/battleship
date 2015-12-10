@@ -31,6 +31,8 @@ class Ship
 
   # returns surrounding mask
   def save_location(coordinates)
+    return [] unless coordinates
+
     mask = Array.new
 
     @location << coordinates

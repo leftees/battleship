@@ -17,7 +17,10 @@ describe Grid do
     expect(Grid::AXE_DIGGITS).to eql(%w(1 2 3 4 5 6 7 8 9 10))
   end
 
-  it 'has show method' do
+  it '#build' do
+    expect(grid).to respond_to(:build)    
+  end
+  it '#show' do
     expect(grid).to respond_to(:show)
   end
 
