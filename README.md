@@ -16,7 +16,7 @@ You can use the game by the folloging file:
    ```ruby
    ruby console.rb
    ```
-* There is a hdding command 'D' to enter debugg mode.
+* There is a hidden command 'D' to enter debugg mode.
 
 ## Screenshots
 
