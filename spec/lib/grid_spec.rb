@@ -3,7 +3,7 @@ require "grid"
 require "ship"
 
 describe Grid do
-  let(:grid) { Grid.new(Array.new) }
+  let(:grid) { Grid.new.build(Array.new) }
 
   it "is valid" do
     expect(grid).to be_kind_of(Grid)
@@ -26,18 +26,15 @@ describe Grid do
   end
 
   it '#setup_with_fleet' do
-    matrix = Array.new(4){ Array.new(4, false) }
+    matrix = Array.new(4){ Array.new(4, " ") }
 
     ship1 = Ship.new(matrix, 1).build
     ship1.instance_variable_set("@location", [[0,2]]) 
 
     fleet = [ship1, Ship.new(matrix, 2).build]
 
-    grid = Grid.new(matrix)
-    expect(grid.send(:setup_with_fleet)).to eql([[".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."]])    
-    expect(grid.instance_variable_get(:@matrix)).to eql([[".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."]])
-    grid.instance_variable_set("@fleet",
-     fleet)
+    grid = Grid.new().build(matrix)
+    grid.instance_variable_set("@fleet",fleet)
     expect(grid.send(:setup_with_fleet)[0][2]).to eql('X')
   end
 end

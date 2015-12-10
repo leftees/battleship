@@ -2,7 +2,7 @@
 # This is code sample how to launch program in console mode
 #
 
-# example from readme file, use secret 'S' command to enter debug mode
+# example from readme file, use secret 'D' command to enter debug mode
 
 require_relative '../lib/game.rb'
 

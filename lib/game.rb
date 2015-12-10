@@ -6,7 +6,10 @@ class Game
   attr_reader :state, :shots, :fleet
 
   STATES = %w(initialized ready error terminated gameover)
-  GRID_SIZE = 10  
+  GRID_SIZE = 10
+  HIT_CHAR = 'X'
+  MISS_CHAR = '-'
+  NO_SHOT_CHAR = '.'  
 
   SHIPS_DEFS = [
     { size: 4 }, # Destroyer
@@ -19,41 +22,51 @@ class Game
   def initialize(options = {})
     @state = 'initialized'
     @command_line = nil
-    @fleet = []
     @shots = []
-
-    @matrix = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, false) }
-    @matrix_oponent = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, false) }
-
+    @fleet = []
     play
   end
 
   def play
-    @state = 'ready'
-    add_fleet
     begin
-      console      
-      case @command_line
-      when 'S'
-        show(debug: true)
-      when 'Q'
-        @state = 'terminated'
-      else
-        show
-      end
-    end while not(terminated? || ENV['RACK_ENV'] == 'test')
-    Grid.row(report)
+      @matrix = Array.new(GRID_SIZE){ Array.new(GRID_SIZE,' ') }
+      @matrix_oponent = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, NO_SHOT_CHAR) }
+      @grid_oponent = Grid.new
+
+      @state = 'ready'
+      add_fleet
+      begin
+        console      
+        case @command_line
+        when 'D'
+          show(debug: true)
+        when 'Q'
+          @state = 'terminated'
+        when 'I'
+          @state = 'initialized'
+          @grid_oponent.status_line = "Initialized"
+          show
+        when /^[A-J]([1-9]|10)$/
+          shoot
+          report
+          show
+        else
+          @grid_oponent.status_line = "Error: Incorrect input"
+          show
+          clear_error          
+        end
+      end while not(gameover? || terminated? || initialized? || ENV['RACK_ENV'] == 'test')
+    end while initialized?
+    report
     self
   end
 
   def show(options = {})
-    grid_oponent = Grid.new(@matrix_oponent)
-    grid_oponent.status_line = "[#{@state}] Wybrałeś: #{ @command_line }"
-    grid_oponent.show()
+    @grid_oponent.build(@matrix_oponent).show()
 
     if options[:debug]
-      @grid = Grid.new(@matrix, @fleet)
-      @grid.status_line = "DEBUG MODE"
+      @grid = Grid.new.build(@matrix, @fleet)
+      @grid.status_line = "DEBUG MODE"      
       @grid.show
     end
   end
@@ -71,23 +84,69 @@ class Game
   end
 
   def add_fleet
-    SHIPS_DEFS.each do |ship|
-      @fleet << Ship.new(@matrix, ship[:size]).build
+    @fleet = []    
+    SHIPS_DEFS.each do |ship_definition|
+      ship = Ship.new(@matrix, ship_definition[:size]).build
+      @fleet << ship
+      for coordinates in ship.location
+        @matrix[coordinates[0]][coordinates[1]] = true
+      end
     end
   end
 
   def console
     if ENV['RACK_ENV'] != 'test'
-      input = [(print "Enter coordinates (row, col), e.g. A5 (Q to quit): "), gets.rstrip][1]
+      input = [(print "Enter coordinates (row, col), e.g. A5 (I - initialize, Q to quit): "), gets.rstrip][1]
       self << input
     end
   end
 
+  def shoot
+    if xy = convert
+      @fleet.each do |ship|
+        if ship.location.include? xy
+          @matrix_oponent[xy[0]][xy[1]] = HIT_CHAR
+          @state = 'gameover' if game_over?
+        else
+          @matrix_oponent[xy[0]][xy[1]] = MISS_CHAR
+        end
+      end
+      @shots << xy
+    end
+  end
+
+  def game_over?
+    (fleet_location - @shots).empty?
+  end
+
+  def fleet_location
+    fleet_location = []
+    @fleet.each do |ship|
+      fleet_location << ship.location
+    end
+    fleet_location
+  end
+
+  def convert
+    x = @command_line[0]
+    y = @command_line[1..-1]
+    [x.ord - 65, y.to_i-1]
+  end
+
+  def clear_error
+    @state = 'ready'
+  end
+
   def report
-    if terminated?
+    msg = if terminated?
       "Terminated by user after #{@shots.size} shots!"
-    else
+    elsif gameover?
       "Well done! You completed the game in #{@shots.size} shots"
-    end  
+    else
+      "[#{ @state }] Your input: #{ @command_line }"
+    end
+
+    Grid.row(msg)
+    msg
   end
 end

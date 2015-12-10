@@ -4,12 +4,6 @@ require "game"
 describe Game do
   let(:game) { Game.new }
 
-  before(:each) do
-  #   # stub command line loop
-  #   Game.instance_variable_set('@command_line', 'Q')
-    # expect(Game).to receive(:puts).and_return(nil)
-  end
-
   it "is valid" do
     expect(game).to be_kind_of(Game)
   end
@@ -64,6 +58,15 @@ describe Game do
     end
   end
 
+  describe "#clear_error" do
+    it "cleans error status" do
+      game.instance_variable_set("@state","error")
+      expect{game.send(:clear_error)}.to change{
+        game.instance_variable_get(:@state)
+      }.from('error').to('ready')
+    end
+  end
+
   describe '#play' do
     it "exists" do
       expect(game).to respond_to(:play)
@@ -78,28 +81,42 @@ describe Game do
       expect(game).to receive(:console)
       game.play
     end
-
-    it "calls #report" do
-      expect(game).to receive(:report)
-      game.play
-    end
   end
-
 
   describe '#show' do
     it "is valid" do
       expect(game).to respond_to(:show)
     end
-    
-    # it "calls grid's show" do
-    #   expect_any_instance_of(Grid).to receive(:show)
-    #   game.show
-    # end
+  end
+
+  describe "#fleet_location" do
+    it "is valid" do
+
+      matrix = Array.new(4){ Array.new(4, false) }
+
+      ship1 = Ship.new(matrix, 1).build
+      ship1.instance_variable_set("@location", [1,0]) 
+
+      ship2 = Ship.new(matrix, 2).build
+      ship2.instance_variable_set("@location", [3,2]) 
+
+      fleet = [ship1, ship2]
+      game.instance_variable_set("@fleet", fleet)
+
+      expect(game.send(:fleet_location)).to eql [ [1, 0], [3, 2] ]
+    end
+  end
+
+  describe '#convert' do
+    it "converts from A5 to coordinates" do
+      game.command_line = "B5"
+      expect(game.send(:convert)).to eql([1, 4])
+    end
   end
 
   describe "#report" do
-    it "returns formated text" do
-      expect(game.send(:report)).to eql('Well done! You completed the game in 0 shots')
+    it "returns text" do
+      expect(game.send(:report)).to eql "[ready] Your input: "
     end
   end
 end

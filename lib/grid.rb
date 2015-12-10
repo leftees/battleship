@@ -7,16 +7,23 @@ class Grid
   NO_SHOT_CHAR = '.'
   MISS_CHAR = '-'
 
-  def initialize(matrix, fleet = nil)
-    @matrix = matrix.each { |row| row.fill(NO_SHOT_CHAR) }
+
+  def initialize
+    @matrix = []
+    @fleet = []
+  end
+
+  def build(matrix, fleet = nil)
+    @matrix = matrix
     @fleet = fleet
+    self  
   end
 
   def show
     print_header
     setup_with_fleet if @fleet
-    @matrix.each_with_index do |row, index|
-      Grid.row("#{AXE_LETTERS[index]} #{row.join(' ')}")
+    @matrix.each_with_index do |grow, index|
+      Grid.row("#{ AXE_LETTERS[index] } #{ grow.join(' ') }")
     end
   end
 
@@ -41,7 +48,7 @@ class Grid
 
   def print_header
     if ENV['RACK_ENV'] != 'test'    
-      puts "=" * AXE_DIGGITS.size*2
+      puts "=" * AXE_DIGGITS.size*3
       puts status_line
       puts "  #{AXE_DIGGITS.join(' ')}"
     end
