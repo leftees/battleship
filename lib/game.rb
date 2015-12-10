@@ -1,15 +1,12 @@
-require 'grid.rb'
-require 'ship.rb'
+require_relative '../lib/grid.rb'
+require_relative '../lib/ship.rb'
 
 class Game
   attr_accessor :command_line
-  attr_reader :state, :shots
+  attr_reader :state, :shots, :fleet
 
   STATES = %w(initialized ready error terminated gameover)
   GRID_SIZE = 10  
-  NO_SHOT_CHAR = '.'
-  MISS_CHAR = '-'
-  HIT_CHAR = 'X'
 
   SHIPS_DEFS = [
     { size: 4 }, # Destroyer
@@ -22,11 +19,11 @@ class Game
   def initialize(options = {})
     @state = 'initialized'
     @command_line = nil
-    @ships = []
-    @shots = 0
+    @fleet = []
+    @shots = []
 
     @matrix = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, false) }
-    @matrix_oponent = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, NO_SHOT_CHAR) }
+    @matrix_oponent = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, false) }
 
     play
   end
@@ -44,52 +41,53 @@ class Game
       else
         show
       end
-    end while (not terminated? || ENV['RACK_ENV'] == 'test')
-    Grid.message(report)
+    end while not(terminated? || ENV['RACK_ENV'] == 'test')
+    Grid.row(report)
     self
   end
 
   def show(options = {})
-    # @grid_oponent = Grid.new(@matrix_oponent)
-    # @grid_oponent.status_line = "[#{@state}] Wybrałeś: #{ @command_line }"
-    # @grid_oponent.show()
+    grid_oponent = Grid.new(@matrix_oponent)
+    grid_oponent.status_line = "[#{@state}] Wybrałeś: #{ @command_line }"
+    grid_oponent.show()
 
-    # if options[:debug]
-    #   @grid = Grid.new(@matrix)
-    #   @grid.status_line = "DEBUG MODE"
-    #   @grid.show()
-    # end
+    if options[:debug]
+      @grid = Grid.new(@matrix, @fleet)
+      @grid.status_line = "DEBUG MODE"
+      @grid.show
+    end
   end
 
-  # # just some user input validations
-  # def << (str)
-  #   if not str then return end
-  #   @command_line = str.upcase
-  # end
+  # just some user input validations
+  def << (str)
+    if not str then return end
+    @command_line = str.upcase
+  end
 
-  # private
+  private
 
-  # def status_line
-  #   if initialized? then " " end
-  # end
+  def status_line
+    if initialized? then " " end
+  end
 
   def add_fleet
     SHIPS_DEFS.each do |ship|
-      @fleet << Ship.new(@matrix, ship.size)
+      @fleet << Ship.new(@matrix, ship[:size]).build
     end
   end
 
   def console
-  #   # input = [(print "Enter coordinates (row, col), e.g. A5 (Q to quit): "), gets.rstrip][1]
-  #   # self << input
+    if ENV['RACK_ENV'] != 'test'
+      input = [(print "Enter coordinates (row, col), e.g. A5 (Q to quit): "), gets.rstrip][1]
+      self << input
+    end
   end
-
 
   def report
     if terminated?
-      "Terminated by user!"
+      "Terminated by user after #{@shots.size} shots!"
     else
-      "Well done! You completed the game in #{shots} shots"
+      "Well done! You completed the game in #{@shots.size} shots"
     end  
   end
 end

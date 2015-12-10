@@ -2,23 +2,29 @@ class Ship
   attr_reader :location
 
   def initialize(matrix, size)
-    @size = size
+    @xsize = size
     @location = []
     @matrix = matrix
+  end
 
-    temp = size
-    # random start point
+  def build
     begin
-      x = rand(@matrix.size)
-      y = rand(@matrix.size)
-    end while (@matrix[x][y] === true)
-    mask = save_location([x, y])
-    temp -= 1
-    # while(temp > 0) do
-    #   xy = mask[rand(mask.size)]
-    #   mask = save_location(xy)
-    #   temp -= 1
-    # end
+      temp = @xsize
+      mask = []
+      # random start point
+      begin
+        x = rand(@matrix.size)
+        y = rand(@matrix.size)
+      end while (@matrix[x][y] === true)
+      mask = save_location([x, y])
+      temp -= 1
+      while(temp > 0 && mask) do
+        xy = mask[rand(mask.size)] # random next direction
+        mask = save_location(xy)
+        temp -= 1
+      end
+    end while (mask.empty?)
+    self
   end
 
   private
@@ -33,36 +39,14 @@ class Ship
     y = coordinates[1]
     @matrix[x][y] = true    
     
-    mask[0] = [x-1, y-1]
-    mask[1] = [x-1, y  ]
-    mask[2] = [x-1, y+1]
-    mask[3] = [x,   y-1]
-    mask[4] = [x,   y+1]
-    mask[5] = [x+1, y-1]
-    mask[6] = [x+1, y]
-    mask[7] = [x+1, y+1]
-    mask = clean(mask)
-    mask.compact!
+    mask[0] = [x-1, y  ] if (x-1) >= 0
+    mask[1] = [x,   y-1] if (y-1) >= 0
+    mask[2] = [x,   y+1] if (y+1) < @matrix.size
+    mask[3] = [x+1, y  ] if (x+1) < @matrix.size
+    clean(mask)
   end
 
   def clean(mask)
-    ret = mask.map do |item|
-      case
-      when item[0] < 0
-        nil
-      when item[1] < 0 
-        nil
-      when item[0] == @matrix.size
-        nil
-      when item[1] == @matrix.size
-        nil
-      when @matrix[item[0]][item[1]]==true
-        nil
-      else
-        item
-      end
-    end
-    ret
+    mask.select{ |item| not (item .nil? || @matrix[item[0]][item[1]] == true) }
   end
-
 end

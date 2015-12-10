@@ -1,5 +1,6 @@
 require "spec_helper"
 require "grid"
+require "ship"
 
 describe Grid do
   let(:grid) { Grid.new(Array.new) }
@@ -18,5 +19,25 @@ describe Grid do
 
   it 'has show method' do
     expect(grid).to respond_to(:show)
+  end
+
+  it 'has row class method' do
+    expect(described_class).to respond_to(:row)
+  end
+
+  it '#setup_with_fleet' do
+    matrix = Array.new(4){ Array.new(4, false) }
+
+    ship1 = Ship.new(matrix, 1).build
+    ship1.instance_variable_set("@location", [[0,2]]) 
+
+    fleet = [ship1, Ship.new(matrix, 2).build]
+
+    grid = Grid.new(matrix)
+    expect(grid.send(:setup_with_fleet)).to eql([[".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."]])    
+    expect(grid.instance_variable_get(:@matrix)).to eql([[".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."], [".", ".", ".", "."]])
+    grid.instance_variable_set("@fleet",
+     fleet)
+    expect(grid.send(:setup_with_fleet)[0][2]).to eql('X')
   end
 end

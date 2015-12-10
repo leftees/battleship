@@ -15,11 +15,12 @@ describe Game do
   end
 
   it "has array of ships" do
-    expect(Game::SHIPS).to be_kind_of(Array)
+    expect(Game::SHIPS_DEFS).to be_kind_of(Array)
+    expect(Game::SHIPS_DEFS).to_not be_empty    
   end
 
   it "has array of states" do
-    expect(Game::SHIPS).to be_kind_of(Array)
+    expect(Game::STATES).to be_kind_of(Array)
   end
 
   it "has GRID_SIZE" do
@@ -27,12 +28,12 @@ describe Game do
   end
 
   describe "#initialize" do
-    it "is in initialize state" do
+    it "leads to 'ready' state" do
       expect(game).to be_ready
     end
 
-    it "shot to be 0" do
-      expect(game.shots).to be_zero
+    it "shots size should be 0" do
+      expect(game.shots.size).to be_zero
     end
 
     it "initialize @matrix array" do
@@ -46,6 +47,20 @@ describe Game do
     it "calls #play" do
       expect_any_instance_of(described_class).to receive(:play)
       Game.new
+    end
+
+    describe "makes fleet" do
+      it "array" do
+        expect(game.instance_variable_get(:@fleet)).to be_kind_of(Array)
+      end
+
+      it "with correct size" do
+        expect(game.instance_variable_get(:@fleet).size).to eql(Game::SHIPS_DEFS.size)
+      end
+
+      it "with correct type" do
+        expect(game.instance_variable_get(:@fleet)[0]).to be_kind_of(Ship)
+      end      
     end
   end
 
@@ -70,8 +85,6 @@ describe Game do
     end
   end
 
-  describe '#add_fleet' do
-  end
 
   describe '#show' do
     it "is valid" do
@@ -86,7 +99,7 @@ describe Game do
 
   describe "#report" do
     it "returns formated text" do
-      expect(game.report).to eql('Well done! You completed the game in 0 shots')
+      expect(game.send(:report)).to eql('Well done! You completed the game in 0 shots')
     end
   end
 end
