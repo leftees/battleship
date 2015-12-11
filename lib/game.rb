@@ -40,6 +40,7 @@ class Game
         console      
         case @command_line
         when 'D'
+          @grid_oponent.status_line = ""
           show(debug: true)
         when 'Q'
           @state = 'terminated'
@@ -79,10 +80,6 @@ class Game
   end
 
   private
-
-  def status_line
-    if initialized? then " " end
-  end
 
   def add_fleet
     @fleet = []    
