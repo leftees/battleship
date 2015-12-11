@@ -3,7 +3,7 @@ require_relative '../lib/ship.rb'
 
 class Game
   attr_accessor :command_line
-  attr_reader :state, :shots, :fleet
+  attr_reader :state, :shots
 
   STATES = %w(initialized ready error terminated gameover)
   GRID_SIZE = 10
@@ -122,6 +122,7 @@ class Game
     @hits_counter.zero?
   end
 
+  # other way to calculate game_over?
   def fleet_location
     fleet_location = []
     @fleet.each do |ship|

@@ -146,6 +146,17 @@ describe Game do
     end
   end
 
+  describe '#game_over?' do
+    it "it returns true when hits_counter is zero" do
+      game.instance_variable_set("@hits_counter", 0)
+      expect(game.send(:game_over?)).to be_truthy
+    end
+
+    it "it returns false when hits_counter is not zero" do
+      expect(game.send(:game_over?)).to be_falsy      
+    end
+  end
+
   describe "#report" do
     it "returns text" do
       expect(game.send(:report)).to eql "[ready] Your input: "
