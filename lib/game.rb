@@ -12,8 +12,8 @@ class Game
   NO_SHOT_CHAR = '.'  
 
   SHIPS_DEFS = [
-    { size: 4}, # Destroyer
-    { size: 4 }, # Destroyer    
+    { size: 4},  # Destroyer
+    { size: 4 }, # Destroyer
     { size: 5 }  # Battleship
   ]
 

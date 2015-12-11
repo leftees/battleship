@@ -18,7 +18,7 @@ describe Grid do
   end
 
   it '#build' do
-    expect(grid).to respond_to(:build)    
+    expect(grid).to respond_to(:build)
   end
   it '#show' do
     expect(grid).to respond_to(:show)
@@ -32,7 +32,7 @@ describe Grid do
     matrix = Array.new(4){ Array.new(4, " ") }
 
     ship1 = Ship.new(matrix, 1).build
-    ship1.instance_variable_set("@location", [[0,2]]) 
+    ship1.instance_variable_set("@location", [[0,2]])
 
     fleet = [ship1, Ship.new(matrix, 2).build]
 
