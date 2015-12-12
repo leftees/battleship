@@ -43,6 +43,18 @@ describe Ship do
     it "makes ship location with coordinates" do
       expect(ship.build.location.flatten.size).to eql(6)
     end
+
+    it "calls #destroy" do
+      expect_any_instance_of(described_class).to receive(:destroy)
+      ship.build
+    end
+  end
+
+  describe "#destroy" do
+    it "changes @location to empty" do
+      ship.build
+      expect{ ship.send(:destroy) }.to change{ ship.location.size }.from(3).to(0)
+    end
   end
 
   describe "#save" do

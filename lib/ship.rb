@@ -3,13 +3,14 @@ class Ship
 
   def initialize(matrix, size)
     @xsize    = size
-    @location = []
     @matrix   = matrix
+    @location = []
   end
 
   def build
     begin
-      ship_len = @xsize      
+      destroy
+      ship_len = @xsize
       mask = []
       # random start point
       begin
@@ -34,6 +35,11 @@ class Ship
 
   private
 
+  def destroy
+    @location.each { |xy| @matrix[xy[0]][xy[1]] = ' ' }
+    @location = []
+  end
+
   def save(xy)
     @location.push(xy)    
     @matrix[xy[0]][xy[1]] = true
@@ -55,10 +61,10 @@ class Ship
   end
 
   def clean(mask, exception)
-    mask = mask.select{ |item| not item.nil? || item == exception }
+    mask = mask.select{ |item| not item.nil? || item === exception }
 
     mask.each do |item|
-      if @matrix[item[0]][item[1]] == true
+      if @matrix[item[0]][item[1]] === true
         return []
       end
     end

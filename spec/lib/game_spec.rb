@@ -141,24 +141,6 @@ describe Game do
     end
   end
 
-  describe "#fleet_location" do
-    it "is valid" do
-
-      matrix = Array.new(4){ Array.new(4, ' ') }
-
-      ship1 = Ship.new(matrix, 1).build
-      ship1.instance_variable_set("@location", [1,0]) 
-
-      ship2 = Ship.new(matrix, 1).build
-      ship2.instance_variable_set("@location", [3,2]) 
-
-      fleet = [ship1, ship2]
-      game.instance_variable_set("@fleet", fleet)
-
-      expect(game.send(:fleet_location)).to eql [ [1, 0], [3, 2] ]
-    end
-  end
-
   describe '#convert' do
     it "converts from A5 to coordinates" do
       game.command_line = "B5"

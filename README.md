@@ -18,12 +18,14 @@ The Battleship is an application which implements [Battleship game](https://en.w
 * Ships can tauch in a specific way
 
   bad
+
       ..........
       ..XXX.....
       ....XXX...
       ..........
 
   bad
+
       ..........
       ..XXXXXX..
       ..........
@@ -50,7 +52,7 @@ Test coverage can be observed in the badge on the top of this file. If I find mo
 
 ## End of the game
 
-* Game ends when you destory all the enemie ships
+* Game ends when you destory all the enemy's ships
 
 * Game ends when you type command 'Q'
 

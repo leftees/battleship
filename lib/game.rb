@@ -85,7 +85,7 @@ class Game
     @fleet = []    
     SHIPS_DEFS.each do |ship_definition|
       ship = Ship.new(@matrix, ship_definition[:size]).build
-      @fleet << ship
+      @fleet.push(ship)
       @hits_counter += ship_definition[:size] # need for game over check
       for coordinates in ship.location
         @matrix[coordinates[0]][coordinates[1]] = true
@@ -107,7 +107,7 @@ class Game
           @matrix_oponent[xy[0]][xy[1]] = HIT_CHAR
           @hits_counter -= 1
           @state = 'gameover' if game_over?
-          break
+          return
         else
           @matrix_oponent[xy[0]][xy[1]] = MISS_CHAR
         end
@@ -117,15 +117,6 @@ class Game
 
   def game_over?
     @hits_counter.zero?
-  end
-
-  # other way to calculate game_over?
-  def fleet_location
-    fleet_location = []
-    @fleet.each do |ship|
-      fleet_location.push(ship.location)
-    end
-    fleet_location
   end
 
   def convert
