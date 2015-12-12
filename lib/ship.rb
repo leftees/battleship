@@ -2,53 +2,66 @@ class Ship
   attr_reader :location
 
   def initialize(matrix, size)
-    @xsize = size
+    @xsize    = size
     @location = []
-    @matrix = matrix
+    @matrix   = matrix
   end
 
   def build
     begin
-      temp = @xsize
+      ship_len = @xsize      
       mask = []
       # random start point
       begin
-        x = rand(@matrix.size)
-        y = rand(@matrix.size)
-      end while (@matrix[x][y] === true)
-      mask = save_location([x, y])
-      temp -= 1
-      while(temp > 0 && mask) do
-        xy = mask[rand(mask.size)] # random next direction
-        mask = save_location(xy)
-        temp -= 1
+        xy = [rand(@matrix.size), rand(@matrix.size)]
+        mask = take_mask(xy)
+      end while mask.empty?
+      save(xy)
+      ship_len -= 1
+      while(!ship_len.zero? && !mask.size.zero?) do
+        # random next direction        
+        xy = mask.delete_at(rand(mask.size))
+        neighberhood = take_mask(xy, @location.last)
+        if !neighberhood.empty?
+          save(xy)
+          mask = neighberhood
+          ship_len -= 1         
+        end
       end
-    end while (mask.empty?)
+    end while !ship_len.zero?
     self
   end
 
   private
 
-  # returns surrounding mask
-  def save_location(coordinates)
-    return [] unless coordinates
+  def save(xy)
+    @location.push(xy)    
+    @matrix[xy[0]][xy[1]] = true
+  end
+
+  # returns valid surrounding mask
+  def take_mask(xy, exception = nil)
+    return [] unless xy
+    x, y = xy[0], xy[1]
+    return [] if @matrix[x][y] === true
 
     mask = Array.new
-
-    @location << coordinates
-
-    x = coordinates[0]
-    y = coordinates[1]
-    @matrix[x][y] = true    
     
     mask[0] = [x-1, y  ] if (x-1) >= 0
     mask[1] = [x,   y-1] if (y-1) >= 0
     mask[2] = [x,   y+1] if (y+1) < @matrix.size
     mask[3] = [x+1, y  ] if (x+1) < @matrix.size
-    clean(mask)
+    clean(mask, exception)
   end
 
-  def clean(mask)
-    mask.select{ |item| not (item .nil? || @matrix[item[0]][item[1]] == true) }
+  def clean(mask, exception)
+    mask = mask.select{ |item| not item.nil? || item == exception }
+
+    mask.each do |item|
+      if @matrix[item[0]][item[1]] == true
+        return []
+      end
+    end
+    mask
   end
 end

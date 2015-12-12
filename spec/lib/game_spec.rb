@@ -22,12 +22,36 @@ describe Game do
   end
 
   describe "#initialize" do
-    it "leads to 'ready' state" do
-      expect(game).to be_ready
+    before(:each) do 
+      allow_any_instance_of(described_class).to receive(:play).and_return nil
     end
 
-    it "shots size should be 0" do
-      expect(game.shots.size).to be_zero
+    it "sets 'initialize' state" do
+      expect(game).to be_initialized
+    end
+
+    it "inits shots counter" do
+      expect(game.shots).to be_kind_of(Array)
+    end
+
+    it "inits fleet" do
+      expect(game.instance_variable_get(:@fleet)).to be_kind_of(Array)
+      expect(game.instance_variable_get(:@fleet)).to be_empty      
+    end
+  end
+
+  it "calls #play" do
+    expect_any_instance_of(described_class).to receive(:play)
+    Game.new
+  end
+
+  describe '#play' do
+    it "is valid" do
+      expect(game).to respond_to(:play)
+    end
+
+    it "sets 'ready' state" do
+      expect(game).to be_ready
     end
 
     it "initialize @matrix array" do
@@ -36,16 +60,12 @@ describe Game do
 
     it "initialize @matrix_oponent array" do
       expect(game.instance_variable_get(:@matrix_oponent)).to be_kind_of(Array)
-    end
-
-    it "calls #play" do
-      expect_any_instance_of(described_class).to receive(:play)
-      Game.new
-    end
+    end    
 
     describe "makes fleet" do
-      it "array" do
-        expect(game.instance_variable_get(:@fleet)).to be_kind_of(Array)
+      it "calls #add_fleet" do
+        expect(game).to receive(:add_fleet)
+        game.play
       end
 
       it "with correct size" do
@@ -56,26 +76,6 @@ describe Game do
         expect(game.instance_variable_get(:@fleet)[0]).to be_kind_of(Ship)
       end      
     end
-  end
-
-  describe "#clear_error" do
-    it "cleans error status" do
-      game.instance_variable_set("@state","error")
-      expect{game.send(:clear_error)}.to change{
-        game.instance_variable_get(:@state)
-      }.from('error').to('ready')
-    end
-  end
-
-  describe '#play' do
-    it "exists" do
-      expect(game).to respond_to(:play)
-    end
-
-    it "calls #add_fleet" do
-      expect(game).to receive(:add_fleet)
-      game.play
-    end
 
     it "calls #console" do
       expect(game).to receive(:console)
@@ -85,7 +85,7 @@ describe Game do
     describe "with console" do
       it "when 'Q'" do
         game.instance_variable_set("@command_line","Q")
-        expect{game.play}.to change{ game.state }.from('ready').to('terminated')
+        expect{ game.play }.to change{ game.state }.from('ready').to('terminated')
       end
 
       it "when 'D'" do
@@ -102,9 +102,8 @@ describe Game do
           game.play
         end
 
-        it "calls #report" do
-          expect(game).to receive(:report)
-          game.play
+        it "changes status line" do
+          expect{ game.play }.to change{ game.instance_variable_get("@grid_oponent").instance_variable_get("@status_line") }.from("Error: Incorrect input").to("[ready] Your input: A5")
         end
 
         it "calls #show" do
@@ -118,6 +117,27 @@ describe Game do
   describe '#show' do
     it "is valid" do
       expect(game).to respond_to(:show)
+    end
+
+    it "calls Grid show" do
+      expect_any_instance_of(Grid).to receive(:show).twice
+      game.show
+    end
+
+    describe "in debug mode" do
+      it "changes status_line" do
+        expect{ game.show(debug: true) }.to change{ game.instance_variable_get("@grid").instance_variable_get("@status_line") }.from(nil).to("DEBUG MODE")
+      end
+    end
+
+  end
+
+  describe "#clear_error" do
+    it "cleans error status" do
+      game.instance_variable_set("@state","error")
+      expect{game.send(:clear_error)}.to change{
+        game.instance_variable_get(:@state)
+      }.from('error').to('ready')
     end
   end
 
@@ -158,8 +178,14 @@ describe Game do
   end
 
   describe "#report" do
-    it "returns text" do
-      expect(game.send(:report)).to eql "[ready] Your input: "
+    it "when terminated returns text" do
+      game.instance_variable_set("@state","terminated")
+      expect(game.send(:report)).to eql "Terminated by user after 0 shots!"
+    end
+
+    it "when terminated returns text" do
+      game.instance_variable_set("@state","gameover")
+      expect(game.send(:report)).to eql "Well done! You completed the game in 0 shots"
     end
   end
 end

@@ -7,16 +7,52 @@ The Battleship is an application which implements [Battleship game](https://en.w
 
 ## Usage notes
 
-You can use the game by the folloging file:
-
-* [console.rb](lib/console.rb) - this is an example how to start interactive mode.
+* You can use the game like in the folloging file: [console.rb](lib/console.rb)
 
 * You could test/play by yourself in interactive mode/console by typing
 
    ```ruby
-   ruby console.rb
+   ruby lib/console.rb
    ```
-* There is a hidden command 'D' to enter debugg mode.
+
+* Ships can tauch in a specific way
+
+  bad
+      ..........
+      ..XXX.....
+      ....XXX...
+      ..........
+
+  bad
+      ..........
+      ..XXXXXX..
+      ..........
+      ..........
+
+  good
+
+      ..........
+      ..XXX.....
+      .....XXX..
+      ..........
+
+## List of available commands
+
+* 'D' - debug mode
+
+* 'I' - initialize game again with new fleet
+
+* 'Q' - quit
+
+## Specs
+
+Test coverage can be observed in the badge on the top of this file. If I find more time then I will try to improve it.
+
+## End of the game
+
+* Game ends when you destory all the enemie ships
+
+* Game ends when you type command 'Q'
 
 ## Screenshots
 

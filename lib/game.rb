@@ -8,7 +8,7 @@ class Game
   STATES = %w(initialized ready error terminated gameover)
   GRID_SIZE = 10
   HIT_CHAR = 'X'
-  MISS_CHAR = '-'
+  MISS_CHAR = '_'
   NO_SHOT_CHAR = '.'  
 
   SHIPS_DEFS = [
@@ -24,13 +24,13 @@ class Game
     @command_line = nil
     @shots = []
     @fleet = []
-    @hits_counter = 0
     play
   end
 
   def play
     begin
-      @matrix = Array.new(GRID_SIZE){ Array.new(GRID_SIZE,' ') }
+      @hits_counter = 0      
+      @matrix = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, ' ') }
       @matrix_oponent = Array.new(GRID_SIZE){ Array.new(GRID_SIZE, NO_SHOT_CHAR) }
       @grid_oponent = Grid.new
 
@@ -50,7 +50,7 @@ class Game
           show
         when /^[A-J]([1-9]|10)$/
           shoot
-          report
+          @grid_oponent.status_line = "[#{ @state }] Your input: #{ @command_line }"
           show
         else
           @grid_oponent.status_line = "Error: Incorrect input"
@@ -59,7 +59,7 @@ class Game
         end
       end while not(gameover? || terminated? || initialized? || ENV['RACK_ENV'] == 'test')
     end while initialized?
-    report unless (ENV['RACK_ENV'] == 'test')
+    report
     self
   end
 
@@ -143,8 +143,6 @@ class Game
       "Terminated by user after #{@shots.size} shots!"
     elsif gameover?
       "Well done! You completed the game in #{@shots.size} shots"
-    else
-      "[#{ @state }] Your input: #{ @command_line }"
     end
 
     Grid.row(msg)
