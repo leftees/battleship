@@ -12,9 +12,9 @@ class Game
   NO_SHOT_CHAR = '.'  
 
   SHIPS_DEFS = [
-    { size: 4},  # Destroyer
-    { size: 4 }, # Destroyer
-    { size: 5 }  # Battleship
+    { size: 4, type: 'Battleship'},
+    { size: 4, type: 'Battleship' },
+    { size: 5, type: 'Aircraft carrier' }
   ]
 
   STATES.each { |state| define_method("#{state}?") { @state==state } }
@@ -84,9 +84,9 @@ class Game
   def add_fleet
     @fleet = []    
     SHIPS_DEFS.each do |ship_definition|
-      ship = Ship.new(@matrix, ship_definition[:size]).build
+      ship = Ship.new(@matrix, ship_definition).build
       @fleet.push(ship)
-      @hits_counter += ship_definition[:size] # need for game over check
+      @hits_counter += ship.xsize # need for game over check
       for coordinates in ship.location
         @matrix[coordinates[0]][coordinates[1]] = true
       end
@@ -106,6 +106,7 @@ class Game
         if ship.location.include? xy
           @matrix_oponent[xy[0]][xy[1]] = HIT_CHAR
           @hits_counter -= 1
+          Grid.row("You sank my #{ ship.type }!") if (ship.location - @shots).empty? 
           @state = 'gameover' if game_over?
           return
         else

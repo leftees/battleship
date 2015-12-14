@@ -4,7 +4,7 @@ require "ship"
 describe Ship do
   let(:matrix_size) { 10 }
   let(:sample_matrix) {  Array.new(10){ Array.new(matrix_size, false) }}
-  let(:ship) { Ship.new(sample_matrix, 3) }
+  let(:ship) { Ship.new(sample_matrix, { size: 3, type: "Allah Akbar" }) }
 
   it "is valid" do
     expect(ship).to be_kind_of(Ship)
@@ -22,6 +22,10 @@ describe Ship do
     expect(ship.instance_variable_get(:@matrix)).to eql(sample_matrix)
   end
 
+  it "has type" do
+    expect(ship.instance_variable_get(:@type)).to eql("Allah Akbar")    
+  end
+
   describe "#build" do
     it "is valid" do
       expect(ship).to respond_to(:build)
@@ -36,7 +40,7 @@ describe Ship do
     end
 
     it "makes another ship" do
-      other = Ship.new(sample_matrix, 5).build
+      other = Ship.new(sample_matrix, { size: 5 }).build
       expect(other.location.size).to eql(5)
     end    
 

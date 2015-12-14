@@ -31,10 +31,10 @@ describe Grid do
   it '#setup_with_fleet' do
     matrix = Array.new(4){ Array.new(4, " ") }
 
-    ship1 = Ship.new(matrix, 1).build
+    ship1 = Ship.new(matrix, { size: 1 }).build
     ship1.instance_variable_set("@location", [[0,2]])
 
-    fleet = [ship1, Ship.new(matrix, 2).build]
+    fleet = [ship1, Ship.new(matrix, { size: 2 }).build]
 
     grid = Grid.new().build(matrix)
     grid.instance_variable_set("@fleet",fleet)

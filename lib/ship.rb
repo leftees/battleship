@@ -1,8 +1,9 @@
 class Ship
-  attr_reader :location
+  attr_reader :location, :type, :xsize
 
-  def initialize(matrix, size)
-    @xsize    = size
+  def initialize(matrix, options)
+    @xsize    = options[:size]
+    @type     = options[:type]
     @matrix   = matrix
     @location = []
   end
